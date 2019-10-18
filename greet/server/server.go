@@ -11,13 +11,27 @@ import (
 
 type server struct{}
 
-func (*server) Greet(ctx context.Context, req *model.GreetRequest) (*model.GreetResponse, error)  {
+func (*server) Greet(ctx context.Context, req *model.GreetRequest) (*model.GreetResponse, error) {
 	fmt.Printf("Grpc executed with payload %v", req)
 	firstName := req.GetGreeting().GetFirstName()
 	result := fmt.Sprintf("Hello my name is %s", firstName)
 
 	response := model.GreetResponse{
-		Result:               result,
+		Result: result,
+	}
+
+	return &response, nil
+}
+
+func (*server) Sum(ctx context.Context, req *model.SumRequest) (*model.SumResponse, error) {
+	fmt.Printf("Grpc sum executed with payload %v", req)
+	firstNumber := req.GetSum().GetFirstNumber()
+	secondNumber := req.GetSum().GetSecondNumber()
+
+	total := firstNumber + secondNumber
+
+	response := model.SumResponse{
+		Total: total,
 	}
 
 	return &response, nil
@@ -31,6 +45,7 @@ func main() {
 
 	s := grpc.NewServer()
 	model.RegisterGreetServiceServer(s, &server{})
+	model.RegisterSumServiceServer(s, &server{})
 
 	if err := s.Serve(listen); err != nil {
 		log.Fatal(err)
